@@ -375,6 +375,50 @@
             return round * 1000 + playerCount * 31;
         }
 
+        // Get phrases for a specific round (without considering previous rounds)
+        function getBasePhrases(round, playerCount) {
+            const baseSeed = hashValues(round, playerCount);
+            const mainIndex = Math.floor(seededRandom(baseSeed + 1000) * phrases.length);
+            let imposterIndex = Math.floor(seededRandom(baseSeed + 2000) * phrases.length);
+            
+            while (imposterIndex === mainIndex) {
+                imposterIndex = (imposterIndex + 1) % phrases.length;
+            }
+            
+            return { mainIndex, imposterIndex };
+        }
+
+        // Get phrases for a round, avoiding previous round's phrases
+        function getPhrasesForRound(round, playerCount) {
+            const baseSeed = hashValues(round, playerCount);
+            let mainIndex = Math.floor(seededRandom(baseSeed + 1000) * phrases.length);
+            let imposterIndex = Math.floor(seededRandom(baseSeed + 2000) * phrases.length);
+            
+            // Get previous round's phrases to avoid
+            let forbidden = new Set();
+            if (round > 1) {
+                const prev = getPhrasesForRound(round - 1, playerCount);
+                forbidden.add(prev.mainIndex);
+                forbidden.add(prev.imposterIndex);
+            }
+            
+            // Shift main phrase if it collides with previous round
+            let attempts = 0;
+            while (forbidden.has(mainIndex) && attempts < phrases.length) {
+                mainIndex = (mainIndex + 1) % phrases.length;
+                attempts++;
+            }
+            
+            // Shift imposter phrase if it collides with main or previous round
+            attempts = 0;
+            while ((imposterIndex === mainIndex || forbidden.has(imposterIndex)) && attempts < phrases.length) {
+                imposterIndex = (imposterIndex + 1) % phrases.length;
+                attempts++;
+            }
+            
+            return { mainIndex, imposterIndex };
+        }
+
         function reveal() {
             const playerId = parseInt(document.getElementById('playerId').value);
             const roundNumber = parseInt(document.getElementById('roundNumber').value);
@@ -400,14 +444,8 @@
             const baseSeed = hashValues(roundNumber, playerCount);
             const imposterIndex = Math.floor(seededRandom(baseSeed) * playerCount) + 1;
 
-            // Determine which phrases to use for this round
-            const mainPhraseIndex = Math.floor(seededRandom(baseSeed + 1000) * phrases.length);
-            let imposterPhraseIndex = Math.floor(seededRandom(baseSeed + 2000) * phrases.length);
-            
-            // Make sure imposter gets a different phrase
-            while (imposterPhraseIndex === mainPhraseIndex) {
-                imposterPhraseIndex = (imposterPhraseIndex + 1) % phrases.length;
-            }
+            // Get phrases for this round (avoiding previous round)
+            const { mainIndex: mainPhraseIndex, imposterIndex: imposterPhraseIndex } = getPhrasesForRound(roundNumber, playerCount);
 
             const isImposter = playerId === imposterIndex;
             const resultWord = document.getElementById('resultWord');
