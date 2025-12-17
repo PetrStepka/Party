@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Party Vtěrka</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0f0f23;
+            --bg-secondary: #1a1a2e;
+            --bg-card: #16213e;
+            --accent-primary: #e94560;
+            --accent-secondary: #ff6b6b;
+            --accent-glow: rgba(233, 69, 96, 0.4);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --text-muted: #6b6b80;
+            --success: #4ade80;
+            --warning: #fbbf24;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background-image: 
+                radial-gradient(ellipse at 20% 20%, rgba(233, 69, 96, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(107, 107, 255, 0.1) 0%, transparent 50%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 40px var(--accent-glow);
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 
+                0 4px 30px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 16px 20px;
+            font-size: 1.1rem;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 600;
+            background: var(--bg-secondary);
+            border: 2px solid transparent;
+            border-radius: 14px;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+            appearance: none;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 4px var(--accent-glow);
+        }
+
+        input[type="number"]::placeholder {
+            color: var(--text-muted);
+        }
+
+        .button {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.1rem;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border: none;
+            border-radius: 14px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px var(--accent-glow);
+            margin-top: 10px;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px var(--accent-glow);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .result-container {
+            display: none;
+            margin-top: 24px;
+            text-align: center;
+        }
+
+        .result-container.visible {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-label {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .result-word {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            padding: 24px;
+            background: linear-gradient(135deg, rgba(233, 69, 96, 0.15), rgba(107, 107, 255, 0.15));
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            line-height: 1.4;
+        }
+
+        .result-word.imposter {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(251, 146, 36, 0.2));
+            border-color: rgba(251, 191, 36, 0.3);
+        }
+
+        .hint {
+            margin-top: 16px;
+            padding: 12px 16px;
+            background: rgba(74, 222, 128, 0.1);
+            border-radius: 10px;
+            color: var(--success);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .hint.warning {
+            background: rgba(251, 191, 36, 0.1);
+            color: var(--warning);
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            margin: 20px 0;
+        }
+
+        .info-text {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            margin-top: 20px;
+            line-height: 1.5;
+        }
+
+        /* Hide spinner buttons on number inputs */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            appearance: none;
+            margin: 0;
+        }
+
+        @media (max-width: 380px) {
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .result-word {
+                font-size: 1.3rem;
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">Party Vtěrka</div>
+            <div class="subtitle">Najdi toho, kdo je jiný!</div>
+        </div>
+
+        <div class="card">
+            <div class="form-group">
+                <label>Tvoje ID hráče</label>
+                <input type="number" id="playerId" placeholder="1, 2, 3..." min="1" inputmode="numeric">
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="input-row">
+                <div class="form-group">
+                    <label>Číslo kola</label>
+                    <input type="number" id="roundNumber" placeholder="1" min="1" inputmode="numeric">
+                </div>
+                <div class="form-group">
+                    <label>Počet hráčů</label>
+                    <input type="number" id="playerCount" placeholder="4" min="3" inputmode="numeric">
+                </div>
+            </div>
+
+            <button class="button" onclick="reveal()">Vylosovat</button>
+
+            <div class="result-container" id="resultContainer">
+                <div class="result-label">Tvoje slovo je:</div>
+                <div class="result-word" id="resultWord"></div>
+                <div class="hint" id="hint"></div>
+            </div>
+        </div>
+
+        <div class="info-text">
+            Všichni zadejte stejné číslo kola a počet hráčů.<br>
+            Každý zadá své unikátní ID hráče (1 až počet hráčů).
+        </div>
+    </div>
+
+    <script>
+        const phrases = [
+            "lekce malování akvarelem",
+            "vyšetření prostaty",
+            "skautský tábor",
+            "sčítání hlasů v komunálních volbách",
+            "expedice v amazonském deštném pralese",
+            "zatmění slunce",
+            "degustace vína ve Francii",
+            "návštěva zubaře",
+            "svatba na pláži",
+            "oprava automatické převodovky",
+            "kurz přežití v divočině",
+            "operace otevřeného srdce",
+            "natáčení reality show",
+            "archeologické vykopávky v Egyptě",
+            "zkouška na řidičský průkaz",
+            "první rande přes Tinder",
+            "kolonoskopie",
+            "výstup na Mount Everest",
+            "porod v nemocnici",
+            "přijímací pohovor do práce",
+            "pohřeb babičky",
+            "focení pro Playboy",
+            "kurz sebeobrany",
+            "léčba závislosti na alkoholu",
+            "mistrovství světa v šachu",
+            "skok padákem",
+            "přednáška o kvantové fyzice",
+            "casting na X Factor",
+            "kadeřnický salon",
+            "exorcismus",
+            "bankovní loupež",
+            "romantická večeře při svíčkách",
+            "kurz vaření sushi",
+            "psychoterapeutické sezení",
+            "focení svatebního alba",
+            "hon na divočáka",
+            "přespání v haunted house",
+            "seminář o kryptoměnách",
+            "zkoušky na vysokou školu",
+            "tetování dračího motivu",
+            "olympijský maraton",
+            "stěhování do nového bytu",
+            "noční směna v nemocnici",
+            "festival elektronické hudby",
+            "sběr hub v lese",
+            "kurz pole dance",
+            "vánoční besídka ve školce",
+            "léčba rakoviny",
+            "natáčení pornofilmu",
+            "pozorování velryb na Islandu",
+            "kontrola z finančního úřadu",
+            "výroba domácího piva",
+            "kurz meditace v Tibetu",
+            "závod Formule 1",
+            "promoce na univerzitě",
+            "přistání na Měsíci",
+            "koncert Metallicy",
+            "vojenský výcvik",
+            "oslava Silvestra v New Yorku",
+            "potápění s žraloky",
+            "operace změny pohlaví",
+            "natáčení Harryho Pottera",
+            "přijímací rituál do spolku",
+            "výslech na policii",
+            "kurz jógy pro těhotné",
+            "soutěž v pojídání pálivých papriček",
+            "oprava zubní protézy",
+            "focení pro pas",
+            "expedice na Antarktidu",
+            "speed dating večer",
+            "kurz první pomoci",
+            "sběr jahod na farmě",
+            "casting do reklamy na prací prášek",
+            "prohlídka atomové elektrárny",
+            "svatební noc",
+            "vystoupení ve striptýzovém klubu",
+            "zkouška v autoškole",
+            "výroba domácího sýra",
+            "přepadení banky",
+            "kurz střelby ze zbraně"
+        ];
+
+        // Seeded random number generator
+        function seededRandom(seed) {
+            const x = Math.sin(seed) * 10000;
+            return x - Math.floor(x);
+        }
+
+        // Generate a hash from multiple values
+        function hashValues(round, playerCount) {
+            return round * 1000 + playerCount * 31;
+        }
+
+        function reveal() {
+            const playerId = parseInt(document.getElementById('playerId').value);
+            const roundNumber = parseInt(document.getElementById('roundNumber').value);
+            const playerCount = parseInt(document.getElementById('playerCount').value);
+
+            // Validation
+            if (!playerId || !roundNumber || !playerCount) {
+                alert('Vyplň prosím všechna pole!');
+                return;
+            }
+
+            if (playerId < 1 || playerId > playerCount) {
+                alert(`ID hráče musí být mezi 1 a ${playerCount}!`);
+                return;
+            }
+
+            if (playerCount < 3) {
+                alert('Počet hráčů musí být alespoň 3!');
+                return;
+            }
+
+            // Determine the imposter (which player ID is the vtěrka)
+            const baseSeed = hashValues(roundNumber, playerCount);
+            const imposterIndex = Math.floor(seededRandom(baseSeed) * playerCount) + 1;
+
+            // Determine which phrases to use for this round
+            const mainPhraseIndex = Math.floor(seededRandom(baseSeed + 1000) * phrases.length);
+            let imposterPhraseIndex = Math.floor(seededRandom(baseSeed + 2000) * phrases.length);
+            
+            // Make sure imposter gets a different phrase
+            while (imposterPhraseIndex === mainPhraseIndex) {
+                imposterPhraseIndex = (imposterPhraseIndex + 1) % phrases.length;
+            }
+
+            const isImposter = playerId === imposterIndex;
+            const resultWord = document.getElementById('resultWord');
+            const hint = document.getElementById('hint');
+            const resultContainer = document.getElementById('resultContainer');
+
+            if (isImposter) {
+                resultWord.textContent = phrases[imposterPhraseIndex];
+                resultWord.classList.add('imposter');
+                hint.textContent = '🎭 Jsi vtěrka! Tvé slovo je jiné.';
+                hint.classList.add('warning');
+                hint.classList.remove('hint');
+            } else {
+                resultWord.textContent = phrases[mainPhraseIndex];
+                resultWord.classList.remove('imposter');
+                hint.textContent = '✓ Najdi toho, kdo má jiné slovo!';
+                hint.classList.remove('warning');
+            }
+
+            resultContainer.classList.add('visible');
+        }
+
+        // Enter key support
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    reveal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
